@@ -10,6 +10,7 @@ import androidx.recyclerview.widget.RecyclerView.ViewHolder
 import com.ar.sample.R
 import com.ar.sample.data.models.GithubContributors
 import com.ar.sample.databinding.ContributerListItemBinding
+import com.ar.sample.interfaces.ItemClickListener
 import com.bumptech.glide.Glide
 
 
@@ -20,6 +21,11 @@ import com.bumptech.glide.Glide
 class GithubContributorAapter(var context: Context) :
     RecyclerView.Adapter<GithubContributorAapter.ViewHolder>() {
     private var items: List<GithubContributors> = emptyList()
+    private var itemClickLister: ItemClickListener<GithubContributors>? = null
+
+    fun setClickListener(itemClickLister: ItemClickListener<GithubContributors>?) {
+        this.itemClickLister = itemClickLister
+    }
 
     class ViewHolder(binding: ContributerListItemBinding) :
         RecyclerView.ViewHolder(binding.getRoot()) {
@@ -38,6 +44,9 @@ class GithubContributorAapter(var context: Context) :
             (context.getString(R.string.contributor_adapter_developer_name) + " " + item.name)
         holder.binding.contributions.setText(context.getString(R.string.contributor_adapter_total_commits) + " " + item.contributions)
         Glide.with(context).load(item.imageURL).into(holder.binding.avatar)
+        holder.itemView.setOnClickListener {
+            itemClickLister?.onItemClick(item, "ItemClick")
+        }
     }
 
     override fun getItemCount(): Int {

@@ -7,13 +7,18 @@ import android.content.pm.PackageManager
 import android.os.Bundle
 import android.util.Log
 import android.view.View
+import android.widget.AdapterView
+import android.widget.AdapterView.OnItemClickListener
+import android.widget.Toast
 import androidx.activity.ComponentActivity
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.activity.viewModels
 import androidx.core.app.ActivityCompat
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.swiperefreshlayout.widget.SwipeRefreshLayout.OnRefreshListener
+import com.ar.sample.data.models.GithubContributors
 import com.ar.sample.databinding.ActivityMainBinding
+import com.ar.sample.interfaces.ItemClickListener
 import com.ar.sample.recievers.ADBCommandReceiver
 import dagger.hilt.android.AndroidEntryPoint
 
@@ -70,6 +75,12 @@ class MainActivity : ComponentActivity(), OnRefreshListener {
                 viewBinding.progressBar.visibility = View.GONE
             }
         }
+        contributerAdapter.setClickListener(object : ItemClickListener<GithubContributors> {
+            override fun onItemClick(item: GithubContributors, type: String) {
+                Toast.makeText(this@MainActivity, "Item Clicked: ${item.name}", Toast.LENGTH_SHORT)
+                    .show()
+            }
+        })
     }
 
     @SuppressLint("InlinedApi")
