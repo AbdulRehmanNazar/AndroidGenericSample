@@ -1,0 +1,6 @@
+<resources>
+    <string name="app_name">Android Genric Project Sample</string>
+
+    <string name="contributor_adapter_developer_name">Developer Name: </string>
+    <string name="contributor_adapter_total_commits">Total commits:</string>
+</resources>
