@@ -5,13 +5,18 @@ import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.ar.sample.data.local.db.AppDatabase
 import com.ar.sample.data.local.localdatasource.ContributersDAO
 import com.ar.sample.data.models.GithubContributors
 import com.ar.sample.data.models.Resource
 import com.ar.sample.data.repository.MainRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.collectLatest
+import kotlinx.coroutines.flow.flowOn
+import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import java.util.UUID
 import javax.inject.Inject
@@ -25,7 +30,6 @@ import kotlin.math.truncate
 @HiltViewModel
 class MainViewModel @Inject constructor(
     private val mainRepository: MainRepository
-
 ) : ViewModel() {
     private val TAG = MainViewModel::javaClass.name
 
@@ -38,7 +42,20 @@ class MainViewModel @Inject constructor(
         get() = _showLoadingBar
 
     init {
+        getLocalContributers()
         fetchRemoteContributers()
+    }
+
+    private fun getLocalContributers() {
+        viewModelScope.launch { //this: CoroutineScope
+            mainRepository.getLocalDBData().flowOn(Dispatchers.IO)
+                .collect { localcontributersList: List<GithubContributors> ->
+                    _contributerList.postValue(ArrayList(localcontributersList))
+                    if (localcontributersList.isNotEmpty()) {
+                        _showLoadingBar.postValue(false)
+                    }
+                }
+        }
     }
 
     /**
@@ -49,16 +66,18 @@ class MainViewModel @Inject constructor(
             mainRepository.getGithubContributers().collectLatest { resource ->
                 when (resource) {
                     is Resource.Success -> {
-                        _contributerList.postValue(resource.data)
-                        _showLoadingBar.postValue(false)
+                        Log.e(TAG, "fetchRemoteContributers: Success")
+//                        _contributerList.postValue(resource.data)
+//                        _showLoadingBar.postValue(false)
                     }
 
                     is Resource.Error -> {
-                        Log.e(TAG, "fetchRemoteContributers: ${resource.message}")
-                        _showLoadingBar.postValue(false)
+                        Log.e(TAG, "fetchRemoteContributers: Failure")
+//                        _showLoadingBar.postValue(false)
                     }
 
                     is Resource.Loading -> {
+                        Log.e(TAG, "fetchRemoteContributers: Loading")
                         _showLoadingBar.postValue(true)
                     }
                 }

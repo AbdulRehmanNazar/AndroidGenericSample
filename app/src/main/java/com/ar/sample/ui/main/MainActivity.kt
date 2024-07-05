@@ -14,6 +14,7 @@ import androidx.activity.ComponentActivity
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.activity.viewModels
 import androidx.core.app.ActivityCompat
+import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.swiperefreshlayout.widget.SwipeRefreshLayout.OnRefreshListener
 import com.ar.sample.data.models.GithubContributors
@@ -54,7 +55,7 @@ class MainActivity : ComponentActivity(), OnRefreshListener {
     }
 
     private fun init() {
-        checkLocationPermission()
+//        checkLocationPermission()
         setupObserver()
         viewBinding.swipeRefresh.setOnRefreshListener(this)
         viewBinding.repoUsersRV.setLayoutManager(LinearLayoutManager(this));
@@ -66,7 +67,7 @@ class MainActivity : ComponentActivity(), OnRefreshListener {
      */
     private fun setupObserver() {
         mainViewModel.contributerList.observe(this) { contributerList ->
-            contributerAdapter.setData(contributerList)
+            contributerAdapter.submitList(contributerList)
         }
         mainViewModel.showLoadingBar.observe(this) { isLoading ->
             if (isLoading) {

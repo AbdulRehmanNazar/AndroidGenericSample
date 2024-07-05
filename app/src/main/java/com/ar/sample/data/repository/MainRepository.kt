@@ -18,6 +18,8 @@ class MainRepository @Inject constructor(
     private val apiService: APIService,
     private val appDatabase: AppDatabase
 ) {
+
+    fun getLocalDBData() = appDatabase.contributersDao().getAllContributers()
     /**
      * getSchedule from server and save to local database implementation
      */

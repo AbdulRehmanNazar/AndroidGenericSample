@@ -1,12 +1,12 @@
 package com.ar.sample.ui.main
 
 import android.content.Context
+import android.util.Log
 import android.view.LayoutInflater
-import android.view.View
 import android.view.ViewGroup
-import android.widget.Toast
+import androidx.recyclerview.widget.DiffUtil
+import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
-import androidx.recyclerview.widget.RecyclerView.ViewHolder
 import com.ar.sample.R
 import com.ar.sample.data.models.GithubContributors
 import com.ar.sample.databinding.ContributerListItemBinding
@@ -18,16 +18,19 @@ import com.bumptech.glide.Glide
  * @Author: Abdul Rehman
  */
 
-class GithubContributorAapter(var context: Context) :
-    RecyclerView.Adapter<GithubContributorAapter.ViewHolder>() {
-    private var items: List<GithubContributors> = emptyList()
+internal class GithubContributorAapter(var context: Context) :
+    ListAdapter<GithubContributors, GithubContributorAapter.ViewHolder>(UserDiffCallBack()) {
+
+    private val TAG = "GithubContributorAapter"
+
+    //    private var items: List<GithubContributors> = emptyList()
     private var itemClickLister: ItemClickListener<GithubContributors>? = null
 
     fun setClickListener(itemClickLister: ItemClickListener<GithubContributors>?) {
         this.itemClickLister = itemClickLister
     }
 
-    class ViewHolder(binding: ContributerListItemBinding) :
+    internal class ViewHolder(binding: ContributerListItemBinding) :
         RecyclerView.ViewHolder(binding.getRoot()) {
         var binding: ContributerListItemBinding = binding
     }
@@ -39,7 +42,7 @@ class GithubContributorAapter(var context: Context) :
     }
 
     override fun onBindViewHolder(holder: ViewHolder, position: Int) {
-        val item = items[position]
+        val item = getItem(position)
         holder.binding.name.text =
             (context.getString(R.string.contributor_adapter_developer_name) + " " + item.name)
         holder.binding.contributions.setText(context.getString(R.string.contributor_adapter_total_commits) + " " + item.contributions)
@@ -49,12 +52,23 @@ class GithubContributorAapter(var context: Context) :
         }
     }
 
-    override fun getItemCount(): Int {
-        return items.size
-    }
+    //This check runs on background thread
+    class UserDiffCallBack : DiffUtil.ItemCallback<GithubContributors>() {
+        private val TAG = "TaskDiffCallBack"
+        override fun areItemsTheSame(
+            oldItem: GithubContributors,
+            newItem: GithubContributors
+        ): Boolean {
+            Log.d(TAG, Thread.currentThread().name)
+            return oldItem.id == newItem.id;
+        }
 
-    fun setData(dataList: List<GithubContributors>) {
-        this.items = dataList
-        notifyDataSetChanged()
+        override fun areContentsTheSame(
+            oldItem: GithubContributors,
+            newItem: GithubContributors
+        ): Boolean {
+            Log.d(TAG, Thread.currentThread().name)
+            return oldItem == newItem
+        }
     }
 }
